@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getClients } from "./services/services";
 import Client from "./components/client";
 import IClient from "./models/client";
-import ModalEdit from "./components/modalEdit";
+import ModalEdit from "./components/modalEditClient";
 const tempData = {
   "getClients": [
     {
@@ -46,12 +46,14 @@ const tempData = {
 const App: React.FC = () => {
   const [clients, setClients] = useState<IClient[]>(tempData.getClients);
   const [hasOpenEdit, setHasOpenEdit] = useState<boolean>(false);
-  const [currentClient, setCurrentClient] = useState<IClient>();
+  const [currentClient, setCurrentClient] = useState<IClient | null>(null);
+  const [updateData, setUpdateData] = useState<boolean>(false);
 
   useEffect(() => {
-    //getClients().then(clients => setClients(clients));
+    getClients().then(clients => setClients(clients));
+    console.log("Hello")
+  }, [updateData])
 
-  }, [])
   const handleEditClient = (client: IClient): void => {
     setHasOpenEdit(true);
     setCurrentClient(client);
@@ -67,9 +69,14 @@ const App: React.FC = () => {
                   <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-black-500 uppercase tracking-wider">
                       Clients
-              </th>
-                    <th scope="col" className="relative px-6 py-3">
-                      <span className="sr-only">Edit</span>
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-black-500 uppercase tracking-wider">
+                      <button
+                        className="bg-green-500 text-white active:bg-green-600 font-bold uppercase text-sm px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1"
+                        type="button"
+                        style={{ transition: "all .15s ease" }}>
+                        Add new client
+                      </button>
                     </th>
                   </tr>
                 </thead>
@@ -81,7 +88,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
-      {currentClient && <ModalEdit hasOpenEdit={hasOpenEdit} setHasOpenEdit={setHasOpenEdit} client={currentClient} />}
+      {currentClient && <ModalEdit hasOpenEdit={hasOpenEdit} setHasOpenEdit={setHasOpenEdit} setCurrentClient={setCurrentClient} setUpdateData={setUpdateData} client={currentClient} />}
     </>
   );
 }

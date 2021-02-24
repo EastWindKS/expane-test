@@ -28,7 +28,7 @@ const Client: React.FC<IProps> = ({ client, editClient }) => {
          </td>
          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <p
-               className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+               className="text-indigo-600 font-bold hover:text-indigo-900 cursor-pointer"
                onClick={editClient}>Edit</p>
          </td>
       </tr>

@@ -1,16 +1,21 @@
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import IClient from "../models/client";
-
+import Alert from "./alert";
+import { updateClient } from "../services/services";
 interface IProps {
    hasOpenEdit: boolean,
    setHasOpenEdit: Dispatch<SetStateAction<boolean>>,
+   setCurrentClient: Dispatch<SetStateAction<IClient | null>>,
+   setUpdateData: Dispatch<SetStateAction<boolean>>,
    client: IClient
 }
 
-const ModalEdit: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, client }) => {
+const ModalEdit: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, setCurrentClient, setUpdateData, client }) => {
    const defaultImgUrl: string = client.avatarUrl ? client.avatarUrl : "";
-   const [showModal, setShowModal] = React.useState<boolean>(false);
+   const [showModal, setShowModal] = useState<boolean>(false);
+   const [alert, setAlert] = useState<boolean>(false);
+   const [showAlert, setShowAlert] = useState<boolean>(false);
    const { register, handleSubmit, errors } = useForm<IClient>({
       defaultValues: {
          firstName: client.firstName,
@@ -19,8 +24,21 @@ const ModalEdit: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, client }) =>
          avatarUrl: defaultImgUrl
       }
    });
-   const submittingToServer = (data: IClient): void => {
-      console.log("DONE!", data)
+   const onClose = (): void => {
+      setHasOpenEdit(false);
+      setCurrentClient(null);
+   }
+
+   const submittingToServer = async (editedClient: IClient): Promise<any> => {
+      await updateClient(client.id, editedClient.firstName, editedClient.lastName, editedClient.phone, editedClient.avatarUrl)
+         .then(r => setAlert(true))
+         .catch(e => setAlert(false));
+      setShowAlert(true);
+      setUpdateData(prev => !prev);
+      setTimeout(() => {
+         setShowAlert(false);
+         onClose();
+      }, 2500);
    }
    useEffect(() => {
       setShowModal(hasOpenEdit);
@@ -32,10 +50,11 @@ const ModalEdit: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, client }) =>
                <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
                   <div className="relative w-auto my-6 mx-auto max-w-3xl">
                      <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                        <div className="flex items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t">
+                        <div className="flex flex-col items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t">
                            <h3 className="text-3xl font-semibold text-green-500">
                               Сlient editing
                            </h3>
+                           {showAlert && <Alert requestReuslt={alert} />}
                         </div>
                         <div className="relative p-6 flex-auto">
                            <form onSubmit={handleSubmit(submittingToServer)}>
@@ -90,11 +109,11 @@ const ModalEdit: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, client }) =>
                                     className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1"
                                     type="button"
                                     style={{ transition: "all .15s ease" }}
-                                    onClick={() => setHasOpenEdit(false)}>
+                                    onClick={onClose}>
                                     Close
                            </button>
                                  <button
-                                    className="bg-green-500 text-white active:bg-green-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1"
+                                    className="bg-green-500 text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none disabled:opacity-50 mr-1 mb-1"
                                     type="submit"
                                     style={{ transition: "all .15s ease" }}>
                                     Save Changes
@@ -108,6 +127,7 @@ const ModalEdit: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, client }) =>
                <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
             </>
          ) : null}
+
       </>
    );
 }
