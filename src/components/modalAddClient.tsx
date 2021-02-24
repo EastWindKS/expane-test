@@ -2,35 +2,24 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import IClient from "../models/client";
 import Alert from "./alert";
-import { updateClient } from "../services/services";
+import { addClient } from "../services/services";
 interface IProps {
-   hasOpenEdit: boolean,
-   setHasOpenEdit: Dispatch<SetStateAction<boolean>>,
-   setCurrentClient: Dispatch<SetStateAction<IClient | null>>,
+   hasOpenAdd: boolean,
+   setHasOpenAdd: Dispatch<SetStateAction<boolean>>,
    setRequestToUpdateData: Dispatch<SetStateAction<boolean>>,
-   client: IClient
 }
 
-const ModalEditClient: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, setCurrentClient, setRequestToUpdateData, client }) => {
-   const defaultImgUrl: string = client.avatarUrl ? client.avatarUrl : "";
+const ModalAddClient: React.FC<IProps> = ({ hasOpenAdd, setHasOpenAdd, setRequestToUpdateData }) => {
    const [showModal, setShowModal] = useState<boolean>(false);
    const [alert, setAlert] = useState<boolean>(false);
    const [showAlert, setShowAlert] = useState<boolean>(false);
-   const { register, handleSubmit, errors } = useForm<IClient>({
-      defaultValues: {
-         firstName: client.firstName,
-         lastName: client.lastName,
-         phone: client.phone,
-         avatarUrl: defaultImgUrl
-      }
-   });
+   const { register, handleSubmit, errors } = useForm<IClient>();
    const onClose = (): void => {
-      setHasOpenEdit(false);
-      setCurrentClient(null);
+      setHasOpenAdd(false);
    }
 
    const submittingToServer = async (editedClient: IClient): Promise<any> => {
-      await updateClient(client.id, editedClient.firstName, editedClient.lastName, editedClient.phone, editedClient.avatarUrl)
+      await addClient(editedClient.firstName, editedClient.lastName, editedClient.phone, editedClient.avatarUrl)
          .then(r => r && setAlert(true))
          .catch(e => setAlert(false));
       setShowAlert(true);
@@ -41,8 +30,8 @@ const ModalEditClient: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, setCur
       }, 2500);
    }
    useEffect(() => {
-      setShowModal(hasOpenEdit);
-   }, [hasOpenEdit])
+      setShowModal(hasOpenAdd);
+   }, [hasOpenAdd])
    return (
       <>
          {showModal ? (
@@ -52,7 +41,7 @@ const ModalEditClient: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, setCur
                      <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                         <div className="flex flex-col items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t">
                            <h3 className="text-3xl font-semibold text-green-500">
-                              Сlient editing
+                              Adding new client
                            </h3>
                            {showAlert && <Alert requestReuslt={alert} />}
                         </div>
@@ -116,7 +105,7 @@ const ModalEditClient: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, setCur
                                     className="bg-green-500 text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none disabled:opacity-50 mr-1 mb-1"
                                     type="submit"
                                     style={{ transition: "all .15s ease" }}>
-                                    Save Changes
+                                    Add client
                          </button>
                               </div>
                            </form>
@@ -131,4 +120,4 @@ const ModalEditClient: React.FC<IProps> = ({ hasOpenEdit, setHasOpenEdit, setCur
       </>
    );
 }
-export default ModalEditClient;
+export default ModalAddClient;

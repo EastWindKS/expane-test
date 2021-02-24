@@ -38,3 +38,23 @@ export const updateClient = async (id:string,firstName:string,lastName:string,ph
   }
   return await request(endpoint, mutation,variables).then(client=>client).catch(e=>console.log(e));
 }
+export const addClient = async (firstName:string,lastName:string,phone:string,avatarUrl:string | null=""):Promise<IClient> =>{
+  const mutation = gql`
+    mutation addClient($firstName:String!,$lastName:String!,$phone:String,$avatarUrl:String) {
+      addClient(firstName:$firstName,lastName:$lastName,phone:$phone,avatarUrl:$avatarUrl) {
+        id,
+        firstName,
+        lastName,
+        phone,
+        avatarUrl
+      }
+    }   
+  `
+  const variables = {
+    firstName,
+    lastName,
+    phone,
+    avatarUrl
+  }
+  return await request(endpoint, mutation,variables).then(client=>client).catch(e=>console.log(e));
+}
