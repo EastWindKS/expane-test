@@ -1,4 +1,4 @@
-export default interface IOrder {
+export default interface IClient {
    id:string;
    firstName: string;
    lastName: string;
